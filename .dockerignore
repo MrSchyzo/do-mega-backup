@@ -1,0 +1,7 @@
+LICENSE
+README.md
+Dockerfile
+.git
+**/Dockerfile
+.vscode
+.gitignore

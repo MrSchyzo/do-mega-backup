@@ -13,7 +13,3 @@ RUN curl https://mega.nz/linux/repo/xUbuntu_23.04/amd64/megacmd-xUbuntu_23.04_am
     rm mega.install.deb && \
     apt autoremove -y && \
     apt purge -y
-
-COPY scripts /workdir/scripts
-
-ENTRYPOINT [ "/workdir/scripts/mega-snapshot.sh" ]

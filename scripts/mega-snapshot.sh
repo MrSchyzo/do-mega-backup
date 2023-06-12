@@ -50,26 +50,30 @@ if ! [ "$polling" -eq "$polling" ] ; then
 fi
 
 pushd /backups
-until mega-ls; do >&2 info "⧗ waiting for mega to login..." ; sleep 10 ; done
+until mega-ls; do info "⧗ waiting for mega to login..." ; sleep 10 ; done
 
 while true; do
     folder="$(date +Mega_%Y%m%d)"
     while [ -f "$folder.7z" ] ; do
-        >&2 warn "❕ $folder.7z already exists - retrying in $polling seconds"
+        warn "❕ $folder.7z already exists - retrying in $polling seconds"
         sleep "$polling"
         folder="$(date +Mega_%Y%m%d)"
     done
 
-    >&2 info "⬇️ download whole MEGA dir into an encrypted $folder.7z"
-    mkdir -p "$folder" && mega-dl . "$folder" && 7z a -P"${password}" "$folder"
-    rm -r "$folder/"
-    >&2 succ "✅ $folder.7z has been created"
+    mkdir -p "$folder" \
+        && info "⬇️ downloading whole MEGA dir into (encrypted) $folder.7z" \
+        && mega-dl . "$folder" \
+        && info "🗜️ compressing $folder into $folder.7z" \
+        && 7z a -P"${password}" "$folder" ./"$folder"/* \
+        && succ "✅ $folder.7z has been created"
+
+    info "🧹 cleaning up folder $folder" && rm -r "$folder/"
     
     extra_backups="$(( $(ls -t *.7z | wc -l) - $max_backups ))"
     if (($extra_backups > 0)) ; then
-        >&2 info "🧹 cleaning up following $extra_backups backup(s)"
+        info "🧹 cleaning up following $extra_backups backup(s)"
         for old in $(ls -t *.7z | tail -n "$extra_backups") ; do
-            >&2 info "🗑️ removing $old"
+            info "🗑️ removing $old"
             rm -f "$old"
         done
     fi
